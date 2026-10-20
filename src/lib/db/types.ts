@@ -16,6 +16,7 @@ export type Game = {
   name: string;
   keywords: string[];
   is_current: boolean;
+  starts_on: string | null;
   sort: number;
 };
 

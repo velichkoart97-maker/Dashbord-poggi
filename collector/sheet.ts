@@ -1,5 +1,5 @@
 // Чтение списка аккаунтов из Google Таблицы (доступ по ссылке, экспорт в CSV).
-// Обязательна только колонка со ссылками. Необязательные колонки по заголовку: «ФИО», «Тип» (креатор/публикатор).
+// Обязательна только колонка со ссылками. Необязательные колонки по заголовку: «ФИО», «Тип» (креатор/публикатор), «Игра».
 import { platformFromUrl } from "../src/config/platforms";
 import type { SheetAccount } from "./types";
 import { handleFromUrl } from "./handles";
@@ -39,6 +39,7 @@ export function parseAccounts(rows: string[][]): { accounts: SheetAccount[]; ski
   const col = (re: RegExp) => (header ? header.findIndex((h) => re.test(h)) : -1);
   const nameCol = col(/фио|имя|name/);
   const typeCol = col(/тип|type/);
+  const gameCol = col(/игра|game/);
 
   const accounts: SheetAccount[] = [];
   const skipped: string[] = [];
@@ -58,6 +59,7 @@ export function parseAccounts(rows: string[][]): { accounts: SheetAccount[]; ski
       platform,
       handle,
       fullName: nameCol >= 0 ? cells[nameCol]?.trim() || null : null,
+      game: gameCol >= 0 ? cells[gameCol]?.trim() || null : null,
       kind: typeCol >= 0 && /публик|publish/i.test(cells[typeCol] ?? "") ? "publisher" : "creator",
     });
   });

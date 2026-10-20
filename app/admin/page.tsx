@@ -66,17 +66,18 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
       <section className={s.card}>
         <h2>Игры</h2>
-        <p className={s.hint}>Ролик относится к игре, если в подписи есть одно из её ключевых слов. Все остальные ролики идут в текущую игру.</p>
+        <p className={s.hint}>Игра ролика: игра аккаунта из колонки «Игра» в таблице → ключевое слово в подписи → игра с самой поздней датой начала, не позже публикации → текущая.</p>
         <form action={saveGames} className={s.games}>
           <input type="hidden" name="slug" value={campaign.slug} />
           <input type="hidden" name="campaign_id" value={campaign.id} />
-          <div className={s.gameHead}><span>Текущая</span><span>Игра</span><span>Ключевые слова через запятую</span><span>Удалить</span></div>
+          <div className={s.gameHead}><span>Текущая</span><span>Игра</span><span>Ключевые слова через запятую</span><span>С даты</span><span>Удалить</span></div>
           {((games ?? []) as Game[]).map((g) => (
             <div key={g.id} className={s.gameRow}>
               <input type="hidden" name="id" value={g.id} />
               <input type="radio" name="current" value={g.id} defaultChecked={g.is_current} />
               <input name={`name_${g.id}`} defaultValue={g.name} className={s.input} />
               <input name={`keywords_${g.id}`} defaultValue={g.keywords.join(", ")} className={s.input} />
+              <input type="date" name={`starts_${g.id}`} defaultValue={g.starts_on ?? ""} className={s.input} />
               <input type="checkbox" name={`delete_${g.id}`} />
             </div>
           ))}
@@ -84,6 +85,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             <input type="radio" name="current" value="new" />
             <input name="new_name" placeholder="Новая игра" className={s.input} />
             <input name="new_keywords" placeholder="ключевые слова" className={s.input} />
+            <input type="date" name="new_starts" className={s.input} />
             <span />
           </div>
           <button className={s.primary}>Сохранить игры</button>

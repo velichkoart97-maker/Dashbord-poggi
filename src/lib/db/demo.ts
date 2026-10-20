@@ -9,9 +9,9 @@ export const DEMO_CAMPAIGN: Campaign = {
 };
 
 export const DEMO_GAMES: Game[] = [
-  { id: "g1", campaign_id: "demo", name: "BirdUp", keywords: ["birdup"], is_current: true, sort: 0 },
-  { id: "g2", campaign_id: "demo", name: "Buffalo", keywords: ["buffalo"], is_current: false, sort: 1 },
-  { id: "g3", campaign_id: "demo", name: "Indiana Mines", keywords: ["indiana mines"], is_current: false, sort: 2 },
+  { id: "g1", campaign_id: "demo", name: "BirdUp", keywords: ["birdup"], is_current: true, starts_on: null, sort: 0 },
+  { id: "g2", campaign_id: "demo", name: "Buffalo", keywords: ["buffalo"], is_current: false, starts_on: null, sort: 1 },
+  { id: "g3", campaign_id: "demo", name: "Indiana Mines", keywords: ["indiana mines"], is_current: false, starts_on: null, sort: 2 },
 ];
 
 function rng(seed: number) {

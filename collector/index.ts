@@ -20,9 +20,10 @@ async function collectCampaign(c: Campaign) {
     const { accounts, skipped } = await readSheet(c.sheet_url);
     stats.accounts = accounts.length;
     if (skipped.length) stats.skipped = skipped.length;
-    const saved = await saveAccounts(c.id, accounts);
+    const { data: gameRows } = await db().from("games").select("*").eq("campaign_id", c.id);
+    const games = (gameRows ?? []) as Game[];
+    const saved = await saveAccounts(c.id, accounts, games);
 
-    const { data: games } = await db().from("games").select("*").eq("campaign_id", c.id);
     const videos: CollectedVideo[] = [];
     const platforms = [...new Set(accounts.map((a) => a.platform))];
     for (const p of platforms) {
@@ -40,7 +41,7 @@ async function collectCampaign(c: Campaign) {
       }
     }
 
-    const res = await saveVideos(c.id, saved, videos, (games ?? []) as Game[], c.start_date, todayMsk());
+    const res = await saveVideos(c.id, saved, videos, games, c.start_date, todayMsk());
     Object.assign(stats, res);
   } catch (e) {
     status = "failed";

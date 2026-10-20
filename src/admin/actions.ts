@@ -53,7 +53,7 @@ export async function createCampaign(form: FormData) {
   done(slug, "Кампания создана");
 }
 
-// Игры: одна форма на все строки (name_<id>, keywords_<id>, current=<id>, delete_<id>) + новая строка.
+// Игры: одна форма на все строки (name_<id>, keywords_<id>, starts_<id>, current=<id>, delete_<id>) + новая строка.
 export async function saveGames(form: FormData) {
   await requireAdmin();
   const slug = str(form, "slug");
@@ -68,14 +68,15 @@ export async function saveGames(form: FormData) {
       continue;
     }
     await db().from("games").update({
-      name: str(form, `name_${id}`), keywords: kw(str(form, `keywords_${id}`)), is_current: id === current, sort: i,
+      name: str(form, `name_${id}`), keywords: kw(str(form, `keywords_${id}`)), starts_on: str(form, `starts_${id}`) || null,
+      is_current: id === current, sort: i,
     }).eq("id", id);
   }
 
   const newName = str(form, "new_name");
   if (newName) {
     await db().from("games").insert({
-      campaign_id: campaignId, name: newName, keywords: kw(str(form, "new_keywords") || newName),
+      campaign_id: campaignId, name: newName, keywords: kw(str(form, "new_keywords") || newName), starts_on: str(form, "new_starts") || null,
       is_current: current === "new", sort: ids.length,
     });
   }
