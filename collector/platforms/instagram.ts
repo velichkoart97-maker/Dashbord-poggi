@@ -3,6 +3,7 @@
 // Пустые профили и аккаунты с игрой добираем через вкладку Reels («apify/instagram-reel-scraper»),
 // а при заданном IG_SESSION_ID аккаунты с игрой ещё и через вход в аккаунт (instagram-session.ts).
 import { chunk, runActor } from "../apify";
+import { collectInstagramHiker } from "./instagram-hiker";
 import { collectInstagramSession } from "./instagram-session";
 import type { CollectedVideo, PlatformCollector } from "../types";
 
@@ -66,6 +67,9 @@ export const collectInstagram: PlatformCollector = async (accounts, since) => {
   const session = process.env.IG_SESSION_ID;
   const sessionGame = (process.env.IG_SESSION_GAME || "BirdUp").toLowerCase();
   const withGame = accounts.filter((a) => a.game?.toLowerCase() === sessionGame);
-  if (session && withGame.length) out.push(...(await collectInstagramSession(withGame, since, session)));
+  // HikerAPI (секрет HIKERAPI_KEY) надёжнее входа через свой аккаунт: если ключ есть, берём его.
+  const hikerKey = process.env.HIKERAPI_KEY;
+  if (hikerKey && withGame.length) out.push(...(await collectInstagramHiker(withGame, since, hikerKey)));
+  else if (session && withGame.length) out.push(...(await collectInstagramSession(withGame, since, session)));
   return out;
 };
