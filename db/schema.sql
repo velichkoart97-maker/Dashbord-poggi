@@ -81,7 +81,7 @@ alter table video_snapshots enable row level security;
 alter table collection_runs enable row level security;
 
 -- Ролик + его последние просмотры.
-create or replace view video_latest as
+create or replace view video_latest with (security_invoker = true) as
 select v.*, a.handle, a.full_name, a.kind, coalesce(s.views, 0) as views
 from videos v
 join accounts a on a.id = v.account_id
@@ -91,7 +91,7 @@ left join lateral (
 
 -- Новые просмотры по дням и платформам.
 -- Первый снимок ролика относим на дату публикации (по МСК), дальше — прирост между снимками.
-create or replace view daily_views as
+create or replace view daily_views with (security_invoker = true) as
 with d as (
   select s.video_id, s.date, s.views,
          lag(s.views) over (partition by s.video_id order by s.date) as prev
