@@ -1,7 +1,9 @@
 // Instagram: актор Apify «apify/instagram-scraper», посты профилей начиная с даты старта.
 // Берём только видео (Reels). Поля ответа проверить при первом запуске — Apify иногда их меняет.
-// Пустые профили и аккаунты с игрой добираем через вкладку Reels («apify/instagram-reel-scraper»).
+// Пустые профили и аккаунты с игрой добираем через вкладку Reels («apify/instagram-reel-scraper»),
+// а при заданном IG_SESSION_ID аккаунты с игрой ещё и через вход в аккаунт (instagram-session.ts).
 import { chunk, runActor } from "../apify";
+import { collectInstagramSession } from "./instagram-session";
 import type { CollectedVideo, PlatformCollector } from "../types";
 
 const ACTOR = process.env.APIFY_INSTAGRAM_ACTOR || "apify/instagram-scraper";
@@ -59,5 +61,10 @@ export const collectInstagram: PlatformCollector = async (accounts, since) => {
       console.warn(`Instagram Reels: ${(e as Error).message.slice(0, 200)}`);
     }
   }
+
+  // С входом в аккаунт (секрет IG_SESSION_ID) аккаунты с игрой собираем полностью. Дубли убирает saveVideos.
+  const session = process.env.IG_SESSION_ID;
+  const withGame = accounts.filter((a) => a.game);
+  if (session && withGame.length) out.push(...(await collectInstagramSession(withGame, since, session)));
   return out;
 };
