@@ -50,6 +50,13 @@ async function collectCampaign(c: Campaign) {
         const got = await collectLinks(links, accounts, stats);
         videos.push(...got.videos);
         extra.push(...got.accounts);
+        // По ссылке скрейпер отдаёт не все ролики, поэтому профили найденных авторов собираем целиком.
+        for (const p of [...new Set(got.accounts.map((a) => a.platform))]) {
+          const collect = COLLECTORS[p];
+          if (!collect) continue;
+          try { videos.push(...(await collect(got.accounts.filter((a) => a.platform === p), c.start_date))); }
+          catch (e) { stats[`links_profiles_${p}`] = `ошибка: ${(e as Error).message.slice(0, 200)}`; }
+        }
       } catch (e) {
         status = "partial";
         stats.links = `ошибка: ${(e as Error).message.slice(0, 200)}`;
