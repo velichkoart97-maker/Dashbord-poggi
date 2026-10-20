@@ -1,6 +1,6 @@
 // Instagram: актор Apify «apify/instagram-scraper», посты профилей начиная с даты старта.
 // Берём только видео (Reels). Поля ответа проверить при первом запуске — Apify иногда их меняет.
-// Профили, по которым посты не пришли, добираем через вкладку Reels («apify/instagram-reel-scraper»).
+// Пустые профили и аккаунты с игрой добираем через вкладку Reels («apify/instagram-reel-scraper»).
 import { chunk, runActor } from "../apify";
 import type { CollectedVideo, PlatformCollector } from "../types";
 
@@ -42,15 +42,19 @@ export const collectInstagram: PlatformCollector = async (accounts, since) => {
     }
   }
 
+  // Вкладку Reels дополнительно собираем для пустых профилей и для аккаунтов с игрой из таблицы
+  // (посты профиля без входа приходят не все).
   const got = new Set(out.map((v) => v.handle.toLowerCase()));
-  const empty = accounts.filter((a) => !got.has(a.handle.toLowerCase()));
-  if (empty.length) {
+  const extra = accounts.filter((a) => a.game || !got.has(a.handle.toLowerCase()));
+  if (extra.length) {
     try {
-      const items = await runActor<Item>(REEL_ACTOR, { username: empty.map((a) => a.handle), resultsLimit: 500, onlyPostsNewerThan: since });
+      const items = await runActor<Item>(REEL_ACTOR, { username: extra.map((a) => a.handle), resultsLimit: 500, onlyPostsNewerThan: since });
+      let added = 0;
       for (const it of items) {
         const v = toVideo(it, true);
-        if (v && v.publishedAt.slice(0, 10) >= since) out.push(v);
+        if (v && v.publishedAt.slice(0, 10) >= since) { out.push(v); added++; }
       }
+      console.log(`Instagram Reels: ${extra.length} акк., ${items.length} ответов, ${added} роликов; поля: ${Object.keys(items[0] ?? {}).slice(0, 25).join(",")}`);
     } catch (e) {
       console.warn(`Instagram Reels: ${(e as Error).message.slice(0, 200)}`);
     }
