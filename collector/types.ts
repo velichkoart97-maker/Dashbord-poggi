@@ -2,7 +2,7 @@ import type { PlatformId } from "../src/config/platforms";
 
 // Аккаунт из Google Таблицы.
 export type SheetAccount = {
-  row: number;
+  row: number | null; // null — аккаунт добавлен автоматически (автор ролика из таблицы роликов)
   url: string;
   platform: PlatformId;
   handle: string;

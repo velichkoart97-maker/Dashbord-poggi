@@ -13,7 +13,7 @@ UGC-дашборд WWMAAI × PoggiPlay. Next.js 15 (App Router) + Supabase + с�
 | Общие запросы к базе | `src/lib/db/queries.ts` (кешируются на рендер) |
 | Фильтр периода, форматирование | `src/lib/period.ts`, `src/lib/format.ts` |
 | Админка | `app/admin/page.tsx`, `src/admin/actions.ts`, `src/admin/auth.ts` |
-| Сбор данных | `collector/index.ts` (оркестратор), `collector/platforms/<платформа>.ts`, `collector/sheet.ts`, `collector/games.ts`, `collector/save.ts` |
+| Сбор данных | `collector/index.ts` (оркестратор), `collector/platforms/<платформа>.ts`, `collector/sheet.ts`, `collector/links.ts` (ролики по ссылкам из второй таблицы), `collector/games.ts`, `collector/save.ts` |
 | Расписание сбора | `.github/workflows/collect.yml` (20:30 UTC = 23:30 МСК) |
 | Схема базы | `db/schema.sql`, `db/seed.sql` |
 

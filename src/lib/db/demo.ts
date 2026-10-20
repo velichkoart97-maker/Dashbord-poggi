@@ -5,7 +5,7 @@ import { daysBetween, todayMsk } from "@/lib/period";
 import type { Campaign, DailyRow, Game, VideoRow } from "./types";
 
 export const DEMO_CAMPAIGN: Campaign = {
-  id: "demo", slug: "demo", name: "PoggiPlay", client_token: "demo", sheet_url: null, start_date: "2026-08-05", budget_usd: 20000,
+  id: "demo", slug: "demo", name: "PoggiPlay", client_token: "demo", sheet_url: null, links_sheet_url: null, start_date: "2026-08-05", budget_usd: 20000,
 };
 
 export const DEMO_GAMES: Game[] = [

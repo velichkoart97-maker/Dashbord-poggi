@@ -9,7 +9,8 @@ import type { Campaign, Game } from "../src/lib/db/types";
 import { COLLECTORS } from "./platforms";
 import { saveAccounts, saveVideos } from "./save";
 import { readSheet } from "./sheet";
-import type { CollectedVideo } from "./types";
+import { collectLinks, readLinks } from "./links";
+import type { CollectedVideo, SheetAccount } from "./types";
 
 async function collectCampaign(c: Campaign) {
   const { data: run } = await db().from("collection_runs").insert({ campaign_id: c.id }).select("id").single();
@@ -22,7 +23,6 @@ async function collectCampaign(c: Campaign) {
     if (skipped.length) stats.skipped = skipped.length;
     const { data: gameRows } = await db().from("games").select("*").eq("campaign_id", c.id);
     const games = (gameRows ?? []) as Game[];
-    const saved = await saveAccounts(c.id, accounts, games);
 
     const videos: CollectedVideo[] = [];
     const platforms = [...new Set(accounts.map((a) => a.platform))];
@@ -41,6 +41,23 @@ async function collectCampaign(c: Campaign) {
       }
     }
 
+    // Отдельные ролики по ссылкам: ошибка здесь не мешает основному сбору.
+    const extra: SheetAccount[] = [];
+    if (c.links_sheet_url) {
+      try {
+        const links = await readLinks(c.links_sheet_url);
+        stats.links = links.length;
+        const got = await collectLinks(links, accounts, stats);
+        videos.push(...got.videos);
+        extra.push(...got.accounts);
+      } catch (e) {
+        status = "partial";
+        stats.links = `ошибка: ${(e as Error).message.slice(0, 200)}`;
+        console.error(`[${c.slug}] links:`, e);
+      }
+    }
+
+    const saved = await saveAccounts(c.id, [...accounts, ...extra], games);
     const res = await saveVideos(c.id, saved, videos, games, c.start_date, todayMsk());
     Object.assign(stats, res);
   } catch (e) {
