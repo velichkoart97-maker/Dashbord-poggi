@@ -12,7 +12,9 @@ type Media = {
 };
 
 async function hiker<T>(path: string, key: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, { headers: { "x-access-key": key, accept: "application/json" } });
+  // Ключ передаём и заголовком, и параметром access_key: сервис принимает оба способа.
+  const url = `${BASE}${path}${path.includes("?") ? "&" : "?"}access_key=${encodeURIComponent(key.trim())}`;
+  const res = await fetch(url, { headers: { "x-access-key": key.trim(), accept: "application/json" } });
   const text = await res.text();
   if (!res.ok) throw new Error(`${path.split("?")[0]}: ${res.status} ${text.slice(0, 150)}`);
   return JSON.parse(text) as T;
