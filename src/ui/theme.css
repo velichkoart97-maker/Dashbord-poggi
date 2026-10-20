@@ -1,0 +1,49 @@
+/* Дизайн-токены в стиле peachme.ai: тёплый тёмный фон, персиково-коралловый акцент. */
+:root {
+  --bg: #0c0a09;
+  --bg-glow: rgba(240, 138, 108, 0.10);
+  --card: #161211;
+  --card-2: #1d1715;
+  --border: rgba(255, 186, 150, 0.10);
+  --border-strong: rgba(255, 186, 150, 0.22);
+  --text: #f6efe9;
+  --muted: #a39790;
+  --faint: #6f6560;
+  --peach: #f4a07e;
+  --coral: #ee7b62;
+  --accent-grad: linear-gradient(135deg, #f6a785 0%, #ec765d 100%);
+  --good: #7ad39a;
+  --bad: #ff7a6b;
+  --radius: 22px;
+  --radius-sm: 14px;
+  --font: var(--font-ui), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  background-image: radial-gradient(1200px 500px at 15% -10%, var(--bg-glow), transparent 60%);
+  background-repeat: no-repeat;
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+
+.page {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px 32px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+@media (max-width: 720px) {
+  .page { padding: 20px 16px 60px; gap: 20px; }
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 1000px) { .grid-2 { grid-template-columns: 1fr; } }
+
+.num { font-variant-numeric: tabular-nums; }

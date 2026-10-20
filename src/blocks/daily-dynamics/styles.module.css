@@ -1,0 +1,18 @@
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1000px) { .kpis { grid-template-columns: 1fr 1fr; } }
+.label { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.value { font-size: 30px; font-weight: 800; margin: 10px 0 6px; letter-spacing: -0.02em; }
+.accent { background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.badValue { color: var(--bad); }
+.sub { font-size: 13px; color: var(--faint); }
+.good { font-size: 13px; color: var(--good); }
+.bad { font-size: 13px; color: var(--bad); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: inherit; font-size: 14px; font-weight: 700; padding: 7px 16px; border-radius: 999px; cursor: pointer;
+  background: transparent; color: var(--c); border: 1.5px solid color-mix(in srgb, var(--c) 55%, transparent);
+}
+.chipOn { background: color-mix(in srgb, var(--c) 20%, transparent); border-color: var(--c); }
+.chipOff { opacity: .45; }

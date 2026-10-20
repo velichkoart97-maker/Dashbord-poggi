@@ -1,0 +1,3 @@
+.month { font-weight: 700; white-space: nowrap; }
+.total { color: var(--peach); font-weight: 700; }
+.cell { color: var(--muted); }

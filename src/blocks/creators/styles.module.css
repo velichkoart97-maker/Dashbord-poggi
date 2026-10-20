@@ -1,0 +1,9 @@
+.name { font-weight: 700; }
+.share { color: var(--muted); }
+.details { margin-top: -8px; }
+.details summary {
+  cursor: pointer; list-style: none; color: var(--peach); font-weight: 700; font-size: 18px; padding: 4px 0 14px;
+}
+.details summary::before { content: "▸ "; }
+.details[open] summary::before { content: "▾ "; }
+.details summary::-webkit-details-marker { display: none; }
