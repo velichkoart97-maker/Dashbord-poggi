@@ -14,3 +14,8 @@ from campaigns c,
      ) as g(name, keywords, is_current, sort)
 where c.slug = 'poggiplay'
   and not exists (select 1 from games where campaign_id = c.id);
+
+-- Периоды игр PoggiPlay: 05.08–14.08 Buffalo, с 15.08 Indiana Mines. BirdUp — по аккаунтам (колонка «Игра»).
+update games g set starts_on = v.d::date
+from campaigns c, (values ('Buffalo', '2026-08-05'), ('Indiana Mines', '2026-08-15')) as v(name, d)
+where g.campaign_id = c.id and c.slug = 'poggiplay' and g.name = v.name and g.starts_on is null;

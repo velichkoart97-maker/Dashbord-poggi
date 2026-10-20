@@ -29,7 +29,7 @@
 .linkRow { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
 .link { background: var(--bg); padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); font-size: 13px; word-break: break-all; flex: 1; }
 .games { display: flex; flex-direction: column; gap: 8px; }
-.gameHead, .gameRow { display: grid; grid-template-columns: 70px 1fr 2fr 70px; gap: 10px; align-items: center; }
+.gameHead, .gameRow { display: grid; grid-template-columns: 70px 1fr 2fr 150px 70px; gap: 10px; align-items: center; }
 .gameHead { font-size: 12px; color: var(--faint); text-transform: uppercase; letter-spacing: .08em; }
 .gameRow input[type="radio"], .gameRow input[type="checkbox"] { justify-self: center; accent-color: var(--coral); width: 18px; height: 18px; }
 .runs { width: 100%; margin-top: 16px; font-size: 13px; border-collapse: collapse; }

@@ -24,6 +24,8 @@ create table if not exists games (
   is_current   boolean not null default false,
   sort         int not null default 0
 );
+-- Дата начала игры: ролик без игры у аккаунта и без ключевого слова идёт в игру с самой поздней датой начала ≤ даты публикации.
+alter table games add column if not exists starts_on date;
 
 -- Аккаунты из Google Таблицы.
 create table if not exists accounts (
@@ -38,6 +40,8 @@ create table if not exists accounts (
   active       boolean not null default true,
   unique (campaign_id, url)
 );
+-- Игра аккаунта (колонка «Игра» в таблице): все его ролики идут в неё.
+alter table accounts add column if not exists game_id uuid references games(id) on delete set null;
 
 -- Ролики.
 create table if not exists videos (

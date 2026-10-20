@@ -8,6 +8,7 @@ export type SheetAccount = {
   handle: string;
   fullName: string | null;
   kind: "creator" | "publisher";
+  game: string | null; // название игры из колонки «Игра»
 };
 
 // Ролик, который вернул сборщик платформы. handle — чей ролик (сопоставляется с аккаунтом).
