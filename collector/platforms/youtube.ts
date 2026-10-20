@@ -20,41 +20,54 @@ async function uploadsPlaylist(handle: string): Promise<string | null> {
 
 export const collectYouTube: PlatformCollector = async (accounts, since) => {
   const out: CollectedVideo[] = [];
+  const failed: string[] = [];
   for (const acc of accounts) {
-    const playlist = await uploadsPlaylist(acc.handle);
-    if (!playlist) { console.warn(`YouTube: канал не найден ${acc.url}`); continue; }
-
-    // Плейлист загрузок идёт от новых к старым — листаем до даты старта.
-    const ids: string[] = [];
-    let pageToken = "";
-    for (;;) {
-      const r = await yt<{ nextPageToken?: string; items: { contentDetails: { videoId: string; videoPublishedAt?: string } }[] }>(
-        "playlistItems", { part: "contentDetails", playlistId: playlist, maxResults: "50", ...(pageToken ? { pageToken } : {}) });
-      let reachedOld = false;
-      for (const it of r.items) {
-        const at = it.contentDetails.videoPublishedAt;
-        if (at && at.slice(0, 10) < since) { reachedOld = true; break; }
-        ids.push(it.contentDetails.videoId);
-      }
-      if (reachedOld || !r.nextPageToken) break;
-      pageToken = r.nextPageToken;
+    try { out.push(...(await collectChannel(acc.handle, since))); }
+    catch (e) {
+      // Канал без роликов отдаёт 404 на плейлист загрузок — это не повод терять остальные каналы.
+      failed.push(acc.url);
+      console.warn(`YouTube: ${acc.url}: ${(e as Error).message.slice(0, 200)}`);
     }
+  }
+  if (failed.length === accounts.length && accounts.length) throw new Error(`все каналы с ошибкой, например ${failed[0]}`);
+  return out;
+};
 
-    for (const batch of chunk(ids, 50)) {
-      const r = await yt<{ items: { id: string; snippet: { title: string; publishedAt: string }; statistics: { viewCount?: string } }[] }>(
-        "videos", { part: "snippet,statistics", id: batch.join(",") });
-      for (const v of r.items) {
-        out.push({
-          platform: "youtube",
-          handle: acc.handle,
-          externalId: v.id,
-          url: `https://www.youtube.com/watch?v=${v.id}`,
-          caption: v.snippet.title,
-          publishedAt: v.snippet.publishedAt,
-          views: Number(v.statistics.viewCount ?? 0),
-        });
-      }
+async function collectChannel(handle: string, since: string): Promise<CollectedVideo[]> {
+  const out: CollectedVideo[] = [];
+  const playlist = await uploadsPlaylist(handle);
+  if (!playlist) { console.warn(`YouTube: канал не найден @${handle}`); return out; }
+
+  // Плейлист загрузок идёт от новых к старым — листаем до даты старта.
+  const ids: string[] = [];
+  let pageToken = "";
+  for (;;) {
+    const r = await yt<{ nextPageToken?: string; items: { contentDetails: { videoId: string; videoPublishedAt?: string } }[] }>(
+      "playlistItems", { part: "contentDetails", playlistId: playlist, maxResults: "50", ...(pageToken ? { pageToken } : {}) });
+    let reachedOld = false;
+    for (const it of r.items) {
+      const at = it.contentDetails.videoPublishedAt;
+      if (at && at.slice(0, 10) < since) { reachedOld = true; break; }
+      ids.push(it.contentDetails.videoId);
+    }
+    if (reachedOld || !r.nextPageToken) break;
+    pageToken = r.nextPageToken;
+  }
+
+  for (const batch of chunk(ids, 50)) {
+    const r = await yt<{ items: { id: string; snippet: { title: string; publishedAt: string }; statistics: { viewCount?: string } }[] }>(
+      "videos", { part: "snippet,statistics", id: batch.join(",") });
+    for (const v of r.items) {
+      out.push({
+        platform: "youtube",
+        handle,
+        externalId: v.id,
+        url: `https://www.youtube.com/watch?v=${v.id}`,
+        caption: v.snippet.title,
+        publishedAt: v.snippet.publishedAt,
+        views: Number(v.statistics.viewCount ?? 0),
+      });
     }
   }
   return out;
-};
+}
