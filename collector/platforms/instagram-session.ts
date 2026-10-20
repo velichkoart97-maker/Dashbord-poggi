@@ -12,6 +12,8 @@ type FeedItem = {
   caption?: { text?: string } | null; user?: { username?: string };
 };
 
+class RateLimited extends Error { constructor() { super("429: Instagram ограничил запросы"); } }
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function ig<T>(path: string, session: string): Promise<T> {
@@ -25,6 +27,7 @@ async function ig<T>(path: string, session: string): Promise<T> {
     },
   });
   const text = await res.text();
+  if (res.status === 429) throw new RateLimited();
   if (!res.ok || text.startsWith("<")) throw new Error(`${path}: ${res.status} ${text.slice(0, 150)}`);
   return JSON.parse(text) as T;
 }
@@ -65,6 +68,8 @@ export async function collectInstagramSession(accounts: SheetAccount[], since: s
       console.log(`Instagram (вход): ${a.handle} — ${n} роликов`);
     } catch (e) {
       console.warn(`Instagram (вход): ${a.handle}: ${(e as Error).message.slice(0, 200)}`);
+      // На 429 дальше не стучимся: остальные запросы тоже отобьют, а аккаунт рискует блокировкой.
+      if (e instanceof RateLimited) break;
     }
     await sleep(3000);
   }

@@ -62,9 +62,10 @@ export const collectInstagram: PlatformCollector = async (accounts, since) => {
     }
   }
 
-  // С входом в аккаунт (секрет IG_SESSION_ID) аккаунты с игрой собираем полностью. Дубли убирает saveVideos.
+  // С входом в аккаунт (секрет IG_SESSION_ID) аккаунты игры IG_SESSION_GAME собираем полностью. Дубли убирает saveVideos.
   const session = process.env.IG_SESSION_ID;
-  const withGame = accounts.filter((a) => a.game);
+  const sessionGame = (process.env.IG_SESSION_GAME || "BirdUp").toLowerCase();
+  const withGame = accounts.filter((a) => a.game?.toLowerCase() === sessionGame);
   if (session && withGame.length) out.push(...(await collectInstagramSession(withGame, since, session)));
   return out;
 };
