@@ -7,8 +7,9 @@ import { handleFromUrl } from "./handles";
 export function csvExportUrl(sheetUrl: string): string {
   const id = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
   if (!id) throw new Error(`Не похоже на ссылку Google Таблицы: ${sheetUrl}`);
-  const gid = sheetUrl.match(/[#&?]gid=(\d+)/)?.[1] ?? "0";
-  return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${gid}`;
+  // Без gid в ссылке Google отдаёт первый лист (у листа, созданного загрузкой, gid не 0).
+  const gid = sheetUrl.match(/[#&?]gid=(\d+)/)?.[1];
+  return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv${gid ? `&gid=${gid}` : ""}`;
 }
 
 export function parseCsv(text: string): string[][] {
