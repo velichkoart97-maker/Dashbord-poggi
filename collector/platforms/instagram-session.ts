@@ -1,6 +1,8 @@
 // Instagram через вход в аккаунт: веб-API Instagram с cookie sessionid (секрет IG_SESSION_ID).
 // Без входа Instagram отдаёт только часть роликов профиля, поэтому аккаунты с игрой добираем так.
-// Запросы идут по одному с паузой, чтобы Instagram не счёл аккаунт ботом.
+// Запросы идут по одному с паузой, чтобы Instagram не счёл аккаунт ботом, и через домашний прокси Apify
+// (группа RESIDENTIAL, один и тот же sticky-адрес): с адресов дата-центра GitHub Instagram отвечает 429.
+import { ProxyAgent, fetch, type Dispatcher } from "undici";
 import type { CollectedVideo, SheetAccount } from "../types";
 
 const BASE = "https://www.instagram.com/api/v1";
@@ -16,8 +18,20 @@ class RateLimited extends Error { constructor() { super("429: Instagram огра
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function ig<T>(path: string, session: string): Promise<T> {
+// Пароль прокси Apify берём из аккаунта по APIFY_TOKEN. IG_PROXY=off — ходить напрямую.
+async function apifyProxy(): Promise<Dispatcher | undefined> {
+  if (process.env.IG_PROXY === "off" || !process.env.APIFY_TOKEN) return undefined;
+  const res = await fetch(`https://api.apify.com/v2/users/me?token=${process.env.APIFY_TOKEN}`);
+  const password = ((await res.json()) as { data?: { proxy?: { password?: string } } }).data?.proxy?.password;
+  if (!password) throw new Error("Apify не вернул пароль прокси");
+  const groups = process.env.IG_PROXY_GROUPS || "RESIDENTIAL";
+  const country = process.env.IG_PROXY_COUNTRY ? `,country-${process.env.IG_PROXY_COUNTRY}` : "";
+  return new ProxyAgent(`http://groups-${groups},session-poggi_ig${country}:${password}@proxy.apify.com:8000`);
+}
+
+async function ig<T>(path: string, session: string, dispatcher?: Dispatcher): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
+    dispatcher,
     headers: {
       cookie: `sessionid=${session}`,
       "user-agent": UA,
@@ -35,9 +49,16 @@ async function ig<T>(path: string, session: string): Promise<T> {
 export async function collectInstagramSession(accounts: SheetAccount[], since: string, session: string): Promise<CollectedVideo[]> {
   const out: CollectedVideo[] = [];
   const sinceTs = Date.parse(since) / 1000;
+  let dispatcher: Dispatcher | undefined;
+  try {
+    dispatcher = await apifyProxy();
+  } catch (e) {
+    console.warn(`Instagram (вход): прокси недоступен, сбор через вход пропущен: ${(e as Error).message.slice(0, 200)}`);
+    return out;
+  }
   for (const a of accounts) {
     try {
-      const prof = await ig<{ data?: { user?: { id?: string } } }>(`/users/web_profile_info/?username=${encodeURIComponent(a.handle)}`, session);
+      const prof = await ig<{ data?: { user?: { id?: string } } }>(`/users/web_profile_info/?username=${encodeURIComponent(a.handle)}`, session, dispatcher);
       const id = prof.data?.user?.id;
       if (!id) throw new Error("профиль не найден");
       let maxId = "";
@@ -45,7 +66,7 @@ export async function collectInstagramSession(accounts: SheetAccount[], since: s
       for (let page = 0; page < 20; page++) {
         await sleep(1500);
         const feed = await ig<{ items?: FeedItem[]; more_available?: boolean; next_max_id?: string }>(
-          `/feed/user/${id}/?count=33${maxId ? `&max_id=${maxId}` : ""}`, session);
+          `/feed/user/${id}/?count=33${maxId ? `&max_id=${maxId}` : ""}`, session, dispatcher);
         let older = false;
         for (const it of feed.items ?? []) {
           if (!it.code || !it.taken_at) continue;
