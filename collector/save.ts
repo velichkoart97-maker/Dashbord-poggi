@@ -37,13 +37,16 @@ export async function saveVideos(
   let unmatched = 0;
   for (const v of videos) {
     if (v.publishedAt.slice(0, 10) < since) continue;
+    // Скрейпер может вернуть один ролик дважды: в базу пишем один раз, с большими просмотрами.
+    const key = `${v.platform}:${v.externalId}`;
+    if (views.has(key)) { views.set(key, Math.max(views.get(key)!, v.views)); continue; }
     const acc = accountId.get(`${v.platform}:${v.handle.toLowerCase()}`);
     if (!acc) { unmatched++; continue; }
     rows.push({
       campaign_id: campaignId, account_id: acc, platform: v.platform, external_id: v.externalId,
       url: v.url, caption: v.caption, published_at: v.publishedAt, game_id: assignGame(v.caption, games),
     });
-    views.set(`${v.platform}:${v.externalId}`, v.views);
+    views.set(key, v.views);
   }
 
   let snapshots = 0;
