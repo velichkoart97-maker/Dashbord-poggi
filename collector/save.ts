@@ -7,7 +7,7 @@ import type { CollectedVideo, SheetAccount } from "./types";
 type SavedAccount = { id: string; platform: string; handle: string; game_id: string | null };
 
 // Дата публикации по МСК (UTC+3).
-const mskDate = (iso: string) => new Date(Date.parse(iso) + 3 * 3600_000).toISOString().slice(0, 10);
+export const mskDate = (iso: string) => new Date(Date.parse(iso) + 3 * 3600_000).toISOString().slice(0, 10);
 
 export async function saveAccounts(campaignId: string, accounts: SheetAccount[], games: GameRule[]) {
   const rows = accounts.map((a) => ({

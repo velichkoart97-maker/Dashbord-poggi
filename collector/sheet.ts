@@ -1,5 +1,6 @@
 // Чтение списка аккаунтов из Google Таблицы (доступ по ссылке, экспорт в CSV).
-// Обязательна только колонка со ссылками. Необязательные колонки по заголовку: «ФИО», «Тип» (креатор/публикатор), «Игра».
+// Обязательна только колонка со ссылками. Необязательные колонки по заголовку: «ФИО», «Тип» (креатор/публикатор), «Игра»,
+// «С даты» (ДД.ММ.ГГГГ или ГГГГ-ММ-ДД — ролики аккаунта раньше этой даты не берём).
 import { platformFromUrl } from "../src/config/platforms";
 import type { SheetAccount } from "./types";
 import { handleFromUrl } from "./handles";
@@ -32,6 +33,14 @@ export function parseCsv(text: string): string[][] {
   return rows;
 }
 
+// «01.10.2026» или «2026-10-01» → «2026-10-01»; остальное — null.
+function parseDate(s: string): string | null {
+  const t = s.trim();
+  const ru = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (ru) return `${ru[3]}-${ru[2].padStart(2, "0")}-${ru[1].padStart(2, "0")}`;
+  return /^\d{4}-\d{2}-\d{2}$/.test(t) ? t : null;
+}
+
 export function parseAccounts(rows: string[][]): { accounts: SheetAccount[]; skipped: string[] } {
   const isUrl = (s: string) => /https?:\/\//i.test(s);
   const header = rows[0] && !rows[0].some(isUrl) ? rows[0].map((h) => h.toLowerCase()) : null;
@@ -40,6 +49,7 @@ export function parseAccounts(rows: string[][]): { accounts: SheetAccount[]; ski
   const nameCol = col(/фио|имя|name/);
   const typeCol = col(/тип|type/);
   const gameCol = col(/игра|game/);
+  const sinceCol = col(/с даты|since/);
 
   const accounts: SheetAccount[] = [];
   const skipped: string[] = [];
@@ -60,6 +70,7 @@ export function parseAccounts(rows: string[][]): { accounts: SheetAccount[]; ski
       handle,
       fullName: nameCol >= 0 ? cells[nameCol]?.trim() || null : null,
       game: gameCol >= 0 ? cells[gameCol]?.trim() || null : null,
+      since: sinceCol >= 0 ? parseDate(cells[sinceCol] ?? "") : null,
       kind: typeCol >= 0 && /публик|publish/i.test(cells[typeCol] ?? "") ? "publisher" : "creator",
     });
   });
