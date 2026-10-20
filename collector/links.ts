@@ -133,7 +133,7 @@ export async function collectLinks(links: Link[], known: SheetAccount[], stats: 
     if (have.has(key)) continue;
     have.add(key);
     accounts.push({ row: null, url: profileUrl(v.platform, v.handle), platform: v.platform, handle: v.handle,
-      fullName: nameByKey.get(`${v.platform}:${v.externalId}`) ?? null, kind: "creator", game: null });
+      fullName: nameByKey.get(`${v.platform}:${v.externalId}`) ?? null, kind: "creator", game: null, since: null });
   }
   return { videos, accounts };
 }

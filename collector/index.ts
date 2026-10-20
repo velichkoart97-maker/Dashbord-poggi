@@ -7,7 +7,7 @@ import { db } from "../src/lib/db/client";
 import { todayMsk } from "../src/lib/period";
 import type { Campaign, Game } from "../src/lib/db/types";
 import { COLLECTORS } from "./platforms";
-import { saveAccounts, saveVideos } from "./save";
+import { mskDate, saveAccounts, saveVideos } from "./save";
 import { readSheet } from "./sheet";
 import { collectLinks, readLinks } from "./links";
 import type { CollectedVideo, SheetAccount } from "./types";
@@ -64,8 +64,14 @@ async function collectCampaign(c: Campaign) {
       }
     }
 
+    // У аккаунта может быть своя дата начала (колонка «С даты»): более ранние его ролики не берём.
+    const sinceBy = new Map(accounts.filter((a) => a.since).map((a) => [`${a.platform}:${a.handle.toLowerCase()}`, a.since!]));
+    const own = videos.filter((v) => {
+      const s = sinceBy.get(`${v.platform}:${v.handle.toLowerCase()}`);
+      return !s || mskDate(v.publishedAt) >= s;
+    });
     const saved = await saveAccounts(c.id, [...accounts, ...extra], games);
-    const res = await saveVideos(c.id, saved, videos, games, c.start_date, todayMsk());
+    const res = await saveVideos(c.id, saved, own, games, c.start_date, todayMsk());
     Object.assign(stats, res);
   } catch (e) {
     status = "failed";

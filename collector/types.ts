@@ -9,6 +9,7 @@ export type SheetAccount = {
   fullName: string | null;
   kind: "creator" | "publisher";
   game: string | null; // название игры из колонки «Игра»
+  since: string | null; // YYYY-MM-DD из колонки «С даты»: ролики аккаунта раньше этой даты не берём
 };
 
 // Ролик, который вернул сборщик платформы. handle — чей ролик (сопоставляется с аккаунтом).
