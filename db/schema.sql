@@ -14,6 +14,8 @@ create table if not exists campaigns (
   budget_usd    numeric not null default 0,
   created_at    timestamptz not null default now()
 );
+-- Вторая таблица: ссылки на отдельные ролики (например, отчёт о заливах).
+alter table campaigns add column if not exists links_sheet_url text;
 
 -- Игры кампании. Ровно одна is_current: в неё попадают все ролики без явной метки.
 create table if not exists games (

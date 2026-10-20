@@ -60,6 +60,10 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             <input name="sheet_url" defaultValue={campaign.sheet_url ?? ""} placeholder="https://docs.google.com/spreadsheets/d/…" className={s.input} />
             <small>Доступ «Все, у кого есть ссылка — читатель». Аккаунтов загружено: {accounts ?? 0}</small>
           </label>
+          <label className={s.wide}>Google Таблица с отдельными роликами (необязательно)
+            <input name="links_sheet_url" defaultValue={campaign.links_sheet_url ?? ""} placeholder="https://docs.google.com/spreadsheets/d/…" className={s.input} />
+            <small>Ссылки на ролики (Reels, Shorts, TikTok). Аккаунты авторов добавятся сами, весь профиль не собирается.</small>
+          </label>
           <button className={s.primary}>Сохранить</button>
         </form>
       </section>

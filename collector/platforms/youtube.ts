@@ -4,7 +4,7 @@ import type { CollectedVideo, PlatformCollector } from "../types";
 
 const API = "https://www.googleapis.com/youtube/v3";
 
-async function yt<T>(path: string, params: Record<string, string>): Promise<T> {
+export async function ytApi<T>(path: string, params: Record<string, string>): Promise<T> {
   const key = process.env.YOUTUBE_API_KEY;
   if (!key) throw new Error("YOUTUBE_API_KEY не задан");
   const res = await fetch(`${API}/${path}?${new URLSearchParams({ ...params, key })}`);
@@ -14,7 +14,7 @@ async function yt<T>(path: string, params: Record<string, string>): Promise<T> {
 
 async function uploadsPlaylist(handle: string): Promise<string | null> {
   const by: Record<string, string> = handle.startsWith("UC") ? { id: handle } : { forHandle: handle };
-  const r = await yt<{ items?: { contentDetails: { relatedPlaylists: { uploads: string } } }[] }>("channels", { part: "contentDetails", ...by });
+  const r = await ytApi<{ items?: { contentDetails: { relatedPlaylists: { uploads: string } } }[] }>("channels", { part: "contentDetails", ...by });
   return r.items?.[0]?.contentDetails.relatedPlaylists.uploads ?? null;
 }
 
@@ -42,7 +42,7 @@ async function collectChannel(handle: string, since: string): Promise<CollectedV
   const ids: string[] = [];
   let pageToken = "";
   for (;;) {
-    const r = await yt<{ nextPageToken?: string; items: { contentDetails: { videoId: string; videoPublishedAt?: string } }[] }>(
+    const r = await ytApi<{ nextPageToken?: string; items: { contentDetails: { videoId: string; videoPublishedAt?: string } }[] }>(
       "playlistItems", { part: "contentDetails", playlistId: playlist, maxResults: "50", ...(pageToken ? { pageToken } : {}) });
     let reachedOld = false;
     for (const it of r.items) {
@@ -55,7 +55,7 @@ async function collectChannel(handle: string, since: string): Promise<CollectedV
   }
 
   for (const batch of chunk(ids, 50)) {
-    const r = await yt<{ items: { id: string; snippet: { title: string; publishedAt: string }; statistics: { viewCount?: string } }[] }>(
+    const r = await ytApi<{ items: { id: string; snippet: { title: string; publishedAt: string }; statistics: { viewCount?: string } }[] }>(
       "videos", { part: "snippet,statistics", id: batch.join(",") });
     for (const v of r.items) {
       out.push({

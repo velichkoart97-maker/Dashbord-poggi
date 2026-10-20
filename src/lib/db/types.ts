@@ -6,6 +6,7 @@ export type Campaign = {
   name: string;
   client_token: string;
   sheet_url: string | null;
+  links_sheet_url: string | null;
   start_date: string;
   budget_usd: number;
 };

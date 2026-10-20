@@ -28,6 +28,7 @@ export async function saveCampaign(form: FormData) {
     budget_usd: Number(str(form, "budget_usd").replace(/[^\d.]/g, "")) || 0,
     start_date: str(form, "start_date"),
     sheet_url: str(form, "sheet_url") || null,
+    links_sheet_url: str(form, "links_sheet_url") || null,
   }).eq("slug", slug);
   if (error) throw new Error(error.message);
   done(slug, "Настройки сохранены");
