@@ -40,7 +40,7 @@ export async function DailyDynamicsBlock(ctx: BlockCtx) {
           <div className={s.sub}>эта неделя vs прошлая</div>
         </Card>
       </div>
-      <DailyChart days={chart.days} byPlatform={chart.byPlatform} before={chart.before} />
+      <DailyChart platforms={chart.platforms} days={chart.days} byPlatform={chart.byPlatform} before={chart.before} />
     </>
   );
 }

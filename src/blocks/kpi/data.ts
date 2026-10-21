@@ -1,4 +1,4 @@
-import { PLATFORMS } from "@/config/platforms";
+import { activePlatforms } from "@/config/platforms";
 import { getDaily, getVideos } from "@/lib/db/queries";
 import { inRange, mskDate } from "@/lib/dates";
 import { daysBetween, todayMsk } from "@/lib/period";
@@ -12,7 +12,7 @@ export async function getKpiData({ campaign, range }: BlockCtx) {
 
   const periodVideos = videos.filter((v) => inRange(mskDate(v.published_at), range.from, range.to));
   const byPlatform = (count: (pid: string) => number) =>
-    PLATFORMS.filter((p) => p.enabled).map((p) => ({ label: p.label, n: count(p.id) }));
+    activePlatforms(videos).map((p) => ({ label: p.label, n: count(p.id) }));
 
   const accounts = new Set(periodVideos.map((v) => v.account_id));
 

@@ -15,4 +15,3 @@
   background: transparent; color: var(--c); border: 1.5px solid color-mix(in srgb, var(--c) 55%, transparent);
 }
 .chipOn { background: color-mix(in srgb, var(--c) 20%, transparent); border-color: var(--c); }
-.chipOff { opacity: .45; }
