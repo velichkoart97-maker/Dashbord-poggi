@@ -1,3 +1,4 @@
+import { activePlatforms } from "@/config/platforms";
 import { getDaily } from "@/lib/db/queries";
 import { daysBetween } from "@/lib/period";
 import { buildDailyMatrix } from "@/lib/series";
@@ -35,6 +36,7 @@ export async function getDailyDynamicsData({ campaign, range }: BlockCtx) {
       wow: prevWeek > 0 ? (week - prevWeek) / prevWeek : null,
     },
     chart: {
+      platforms: activePlatforms(daily),
       days: all.days.slice(sliceFrom),
       byPlatform: Object.fromEntries(Object.entries(all.byPlatform).map(([k, v]) => [k, v.slice(sliceFrom)])),
       before, // сумма до начала периода — стартовая точка для режима «Накопленные»

@@ -1,18 +1,18 @@
 "use client";
 import { axisShort } from "@/ui/chartSetup";
 import { Bar } from "react-chartjs-2";
-import { PLATFORMS } from "@/config/platforms";
+import type { Platform } from "@/config/platforms";
 import { fmtInt, fmtMonth } from "@/lib/format";
 
 type Month = { ym: string; byPlatform: Record<string, number> };
 
-export function MonthlyChart({ months }: { months: Month[] }) {
+export function MonthlyChart({ months, platforms }: { months: Month[]; platforms: Platform[] }) {
   return (
     <div style={{ height: 320 }}>
       <Bar
         data={{
           labels: months.map((m) => fmtMonth(m.ym)),
-          datasets: PLATFORMS.map((p) => ({
+          datasets: platforms.map((p) => ({
             label: p.label, data: months.map((m) => m.byPlatform[p.id] ?? 0), backgroundColor: p.color, barPercentage: 0.7,
           })),
         }}

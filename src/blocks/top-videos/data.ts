@@ -1,4 +1,4 @@
-import { PLATFORMS, type PlatformId } from "@/config/platforms";
+import { activePlatforms, type PlatformId } from "@/config/platforms";
 import { getVideos } from "@/lib/db/queries";
 import { mskDate } from "@/lib/dates";
 import type { BlockCtx } from "../types";
@@ -17,6 +17,6 @@ export async function getTopVideosData({ campaign }: BlockCtx) {
     top,
     channels: new Set(videos.map((v) => v.account_id)).size,
     total: videos.length,
-    byPlatform: PLATFORMS.filter((p) => p.enabled).map((p) => ({ id: p.id, label: p.label, color: p.color, n: videos.filter((v) => v.platform === p.id).length })),
+    byPlatform: activePlatforms(videos).map((p) => ({ id: p.id, label: p.label, color: p.color, n: videos.filter((v) => v.platform === p.id).length })),
   };
 }

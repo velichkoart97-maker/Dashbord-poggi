@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { axisShort } from "@/ui/chartSetup";
 import { Bar } from "react-chartjs-2";
-import { PLATFORMS } from "@/config/platforms";
+import type { Platform } from "@/config/platforms";
 import { fmtDayShort, fmtInt } from "@/lib/format";
 import { cumulative } from "@/lib/series";
 import { Card } from "@/ui/Card";
@@ -11,11 +11,11 @@ import s from "./styles.module.css";
 
 type Mode = "new" | "cum";
 
-export function DailyChart({ days, byPlatform, before }: { days: string[]; byPlatform: Record<string, number[]>; before: number }) {
+export function DailyChart({ platforms, days, byPlatform, before }: { platforms: Platform[]; days: string[]; byPlatform: Record<string, number[]>; before: number }) {
   const [mode, setMode] = useState<Mode>("new");
   const [only, setOnly] = useState<string>("all");
 
-  const visible = PLATFORMS.filter((p) => only === "all" || p.id === only);
+  const visible = platforms.filter((p) => only === "all" || p.id === only);
   // В режиме «Накопленные» платформы складываются в общий нарастающий итог.
   const series = visible.map((p) => {
     const raw = byPlatform[p.id] ?? days.map(() => 0);
@@ -31,8 +31,8 @@ export function DailyChart({ days, byPlatform, before }: { days: string[]; byPla
         <Pills<Mode> options={[{ value: "new", label: "Новых за день" }, { value: "cum", label: "Накопленные" }]} value={mode} onChange={setMode} />
         <div className={s.chips}>
           <button type="button" className={`${s.chip} ${only === "all" ? s.chipOn : ""}`} style={{ ["--c" as string]: "#f4a07e" }} onClick={() => setOnly("all")}>Все</button>
-          {PLATFORMS.map((p) => (
-            <button key={p.id} type="button" className={`${s.chip} ${only === p.id ? s.chipOn : ""} ${p.enabled ? "" : s.chipOff}`}
+          {platforms.map((p) => (
+            <button key={p.id} type="button" className={`${s.chip} ${only === p.id ? s.chipOn : ""}`}
               style={{ ["--c" as string]: p.color }} onClick={() => setOnly(p.id)}>{p.label}</button>
           ))}
         </div>

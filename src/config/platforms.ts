@@ -25,6 +25,14 @@ export const PLATFORMS: Platform[] = [
   { id: "threads",   label: "Threads",       color: "#EDE6E0", enabled: false },
 ];
 
+// Платформы для показа на экране: подключённые сбором + любые, по которым пришли данные.
+// Заглушки без данных скрываем, чтобы не засорять легенды и таблицы.
+export function activePlatforms(rows: Iterable<{ platform: string }>): Platform[] {
+  const present = new Set<string>();
+  for (const r of rows) present.add(r.platform);
+  return PLATFORMS.filter((p) => p.enabled || present.has(p.id));
+}
+
 export const PLATFORM_BY_ID = Object.fromEntries(PLATFORMS.map((p) => [p.id, p])) as Record<PlatformId, Platform>;
 
 export function platformFromUrl(url: string): PlatformId | null {
