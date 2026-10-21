@@ -5,11 +5,15 @@ import type { BlockCtx } from "../types";
 
 export type TopVideo = { platform: PlatformId; url: string; caption: string; views: number; date: string };
 
+// Ролики, которые не показываем в топе (по просьбе заказчика). Достаточно куска ссылки, например код ролика.
+const HIDDEN_FROM_TOP = ["DcbgEFfsv1X"];
+const isHidden = (url: string) => HIDDEN_FROM_TOP.some((h) => url.includes(h));
+
 // Все ролики от 10K просмотров; фильтры по диапазону и периоду — в браузере (TopVideosTable).
 export async function getTopVideosData({ campaign }: BlockCtx) {
   const videos = await getVideos(campaign.id);
   const top: TopVideo[] = videos
-    .filter((v) => v.views >= 10_000)
+    .filter((v) => v.views >= 10_000 && !isHidden(v.url))
     .sort((a, b) => b.views - a.views)
     .map((v) => ({ platform: v.platform, url: v.url, caption: (v.caption ?? "").slice(0, 160), views: v.views, date: mskDate(v.published_at) }));
 
