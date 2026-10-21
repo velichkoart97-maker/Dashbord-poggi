@@ -16,7 +16,6 @@ export function Dashboard(ctx: BlockCtx) {
   return (
     <main className="page">
       <HeaderBlock {...ctx} />
-      <TopVideosBlock {...ctx} />
       <PeriodFilterBlock {...ctx} />
       <KpiBlock {...ctx} />
       <CreatorsBlock {...ctx} />
@@ -24,6 +23,7 @@ export function Dashboard(ctx: BlockCtx) {
         <PlatformShareBlock {...ctx} />
         <TopChannelsBlock {...ctx} />
       </div>
+      <TopVideosBlock {...ctx} />
       <DailyDynamicsBlock {...ctx} />
       <CpvBlock {...ctx} />
       <MonthlyBlock {...ctx} />

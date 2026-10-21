@@ -1,4 +1,4 @@
-// Блок «KPI-карточки»: просмотры, видео, каналы, бюджет и CPV, дни данных, Pinterest (заглушка).
+// Блок «KPI-карточки»: просмотры, видео, каналы, бюджет и CPV, дни данных.
 import { fmtCpv, fmtDate, fmtInt, fmtUsd } from "@/lib/format";
 import { todayMsk } from "@/lib/period";
 import type { BlockCtx } from "../types";
@@ -26,7 +26,6 @@ export async function KpiBlock(ctx: BlockCtx) {
       <Tile label="Каналов" value={fmtInt(d.channels)} sub={split(d.channelsBy)} />
       <Tile label="Бюджет кампании" value={fmtUsd(d.budget)} sub={`CPV по всей кампании: ${fmtCpv(d.cpv)} за просмотр`} />
       <Tile label="Дней данных" value={fmtInt(d.days)} sub={`${fmtDate(ctx.campaign.start_date)} — ${fmtDate(todayMsk())}`} />
-      <Tile label="Pinterest, охват" value="—" sub="Скоро: платформа ещё не подключена" muted />
     </div>
   );
 }
