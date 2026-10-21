@@ -8,11 +8,11 @@ import ui from "@/ui/ui.module.css";
 import type { TopVideo } from "./data";
 import s from "./styles.module.css";
 
-type Bucket = "100k" | "500k" | "1m";
+type Bucket = "10k" | "100k" | "500k" | "1m";
 type Period = "all" | "7d" | "30d" | "custom";
 
-const BUCKETS: Record<Bucket, [number, number]> = { "100k": [100_000, 500_000], "500k": [500_000, 1_000_000], "1m": [1_000_000, Infinity] };
-const BUCKET_LABEL: Record<Bucket, string> = { "100k": "100–500K просмотров", "500k": "500K–1M просмотров", "1m": "1M+ просмотров" };
+const BUCKETS: Record<Bucket, [number, number]> = { "10k": [10_000, 100_000], "100k": [100_000, 500_000], "500k": [500_000, 1_000_000], "1m": [1_000_000, Infinity] };
+const BUCKET_LABEL: Record<Bucket, string> = { "10k": "10–100K просмотров", "100k": "100–500K просмотров", "500k": "500K–1M просмотров", "1m": "1M+ просмотров" };
 const PAGE = 10;
 
 function daysAgo(n: number) {
@@ -27,7 +27,7 @@ type Props = {
 };
 
 export function TopVideosTable({ top, channels, total, byPlatform, startDate }: Props) {
-  const [bucket, setBucket] = useState<Bucket>("100k");
+  const [bucket, setBucket] = useState<Bucket>("10k");
   const [period, setPeriod] = useState<Period>("all");
   const [from, setFrom] = useState(startDate);
   const [to, setTo] = useState(daysAgo(0));
@@ -45,7 +45,7 @@ export function TopVideosTable({ top, channels, total, byPlatform, startDate }: 
       <div className={s.head}>
         <h2 className={s.title}><span className={s.fire}>●</span> Топ-видео <span className={s.sub}>{BUCKET_LABEL[bucket]}</span></h2>
         <div className={s.filters}>
-          <Pills<Bucket> options={[{ value: "100k", label: "100–500K" }, { value: "500k", label: "500K–1M" }, { value: "1m", label: "1M+" }]}
+          <Pills<Bucket> options={[{ value: "10k", label: "10–100K" }, { value: "100k", label: "100–500K" }, { value: "500k", label: "500K–1M" }, { value: "1m", label: "1M+" }]}
             value={bucket} onChange={(v) => { setBucket(v); setShown(PAGE); }} />
           <Pills<Period> options={[{ value: "all", label: "Всё время" }, { value: "7d", label: "7 дней" }, { value: "30d", label: "30 дней" }, { value: "custom", label: "Свой период" }]}
             value={period} onChange={(v) => { setPeriod(v); setShown(PAGE); }} />
