@@ -12,7 +12,7 @@ import s from "./styles.module.css";
 type Mode = "new" | "cum";
 
 export function DailyChart({ platforms, days, byPlatform, before }: { platforms: Platform[]; days: string[]; byPlatform: Record<string, number[]>; before: number }) {
-  const [mode, setMode] = useState<Mode>("new");
+  const [mode, setMode] = useState<Mode>("cum");
   const [only, setOnly] = useState<string>("all");
 
   const visible = platforms.filter((p) => only === "all" || p.id === only);
@@ -28,7 +28,7 @@ export function DailyChart({ platforms, days, byPlatform, before }: { platforms:
   return (
     <>
       <div className={s.controls}>
-        <Pills<Mode> options={[{ value: "new", label: "Новых за день" }, { value: "cum", label: "Накопленные" }]} value={mode} onChange={setMode} />
+        <Pills<Mode> options={[{ value: "cum", label: "Накопленные" }, { value: "new", label: "Новых за день" }]} value={mode} onChange={setMode} />
         <div className={s.chips}>
           <button type="button" className={`${s.chip} ${only === "all" ? s.chipOn : ""}`} style={{ ["--c" as string]: "#f4a07e" }} onClick={() => setOnly("all")}>Все</button>
           {platforms.map((p) => (
