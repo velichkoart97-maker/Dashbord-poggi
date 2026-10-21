@@ -14,6 +14,7 @@ type Period = "all" | "7d" | "30d" | "custom";
 const BUCKETS: Record<Bucket, [number, number]> = { "10k": [10_000, 100_000], "100k": [100_000, 500_000], "500k": [500_000, 1_000_000], "1m": [1_000_000, Infinity] };
 const BUCKET_LABEL: Record<Bucket, string> = { "10k": "10–100K просмотров", "100k": "100–500K просмотров", "500k": "500K–1M просмотров", "1m": "1M+ просмотров" };
 const PAGE = 10;
+const COLLAPSED = 3; // на стартовой странице — только первые ролики, остальное по кнопке
 
 function daysAgo(n: number) {
   const d = new Date();
@@ -31,7 +32,7 @@ export function TopVideosTable({ top, channels, total, byPlatform, startDate }: 
   const [period, setPeriod] = useState<Period>("all");
   const [from, setFrom] = useState(startDate);
   const [to, setTo] = useState(daysAgo(0));
-  const [shown, setShown] = useState(PAGE);
+  const [shown, setShown] = useState(COLLAPSED);
 
   const rows = useMemo(() => {
     const [lo, hi] = BUCKETS[bucket];
@@ -46,9 +47,9 @@ export function TopVideosTable({ top, channels, total, byPlatform, startDate }: 
         <h2 className={s.title}><span className={s.fire}>●</span> Топ-видео <span className={s.sub}>{BUCKET_LABEL[bucket]}</span></h2>
         <div className={s.filters}>
           <Pills<Bucket> options={[{ value: "10k", label: "10–100K" }, { value: "100k", label: "100–500K" }, { value: "500k", label: "500K–1M" }, { value: "1m", label: "1M+" }]}
-            value={bucket} onChange={(v) => { setBucket(v); setShown(PAGE); }} />
+            value={bucket} onChange={(v) => { setBucket(v); setShown(COLLAPSED); }} />
           <Pills<Period> options={[{ value: "all", label: "Всё время" }, { value: "7d", label: "7 дней" }, { value: "30d", label: "30 дней" }, { value: "custom", label: "Свой период" }]}
-            value={period} onChange={(v) => { setPeriod(v); setShown(PAGE); }} />
+            value={period} onChange={(v) => { setPeriod(v); setShown(COLLAPSED); }} />
         </div>
       </div>
       {period === "custom" && (
@@ -84,7 +85,12 @@ export function TopVideosTable({ top, channels, total, byPlatform, startDate }: 
         </table>
       </div>
       {rows.length > shown && (
-        <button type="button" className={s.more} onClick={() => setShown(shown + PAGE)}>Показать ещё ({rows.length - shown})</button>
+        <button type="button" className={s.more} onClick={() => setShown(shown + PAGE)}>
+          Показать ещё ({rows.length - shown})
+        </button>
+      )}
+      {shown > COLLAPSED && rows.length > COLLAPSED && (
+        <button type="button" className={s.more} onClick={() => setShown(COLLAPSED)}>Свернуть</button>
       )}
     </Card>
   );
